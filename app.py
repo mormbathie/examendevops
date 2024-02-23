@@ -1,18 +1,17 @@
 from flask import Flask, request, render_template
+from prometheus_flask_exporter import PrometheusMetrics
 import requests
 
 app = Flask(__name__)
-
+metrics = PrometheusMetrics(app)
 
 @app.route("/")
 def home():
-
     return render_template("home.html")
 
-
 @app.route("/search", methods=["POST"])
+@metrics.histogram("search_latency_seconds", description="Latency for /search endpoint")
 def search():
-
     # Get the search query
     query = request.form["q"]
 
@@ -35,5 +34,12 @@ def search():
 
     # If a location is NOT found, return the error page
     else:
-
         return render_template("fail.html")
+
+# Ajouter le point de terminaison pour les métriques Prometheus
+@app.route("/metrics")
+def custom_metrics():
+    return metrics.export()
+
+if __name__ == "__main__":
+    app.run(debug=True)

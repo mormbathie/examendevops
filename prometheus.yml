@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'flask-world-clock'
+    static_configs:
+      - targets:
+          - 192.168.10.253:5000
